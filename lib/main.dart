@@ -129,6 +129,52 @@ class _TodoHomeScreenState
     await saveTasks();
   }
 
+  Future<void> clearAllTasks() async {
+    final shouldClear =
+        await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title:
+              const Text('Clear all tasks?'),
+          content: const Text(
+            'This will permanently remove all tasks.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                  false,
+                );
+              },
+              child:
+                  const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                  true,
+                );
+              },
+              child:
+                  const Text('Clear'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldClear == true) {
+      setState(() {
+        tasks.clear();
+      });
+
+      await saveTasks();
+    }
+  }
+
   Future<void> toggleTask(
     int index,
     bool? value,
@@ -155,28 +201,60 @@ class _TodoHomeScreenState
             crossAxisAlignment:
                 CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 2),
+              Row(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment:
+                          CrossAxisAlignment
+                              .start,
+                      children: const [
+                        SizedBox(height: 2),
+                        Text(
+                          'Minimal Todo',
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight:
+                                FontWeight
+                                    .w700,
+                            color: Color(
+                              0xFF2D2A35,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Stay focused today',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(
+                              0xFF7A7488,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-              const Text(
-                'Minimal Todo',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight:
-                      FontWeight.w700,
-                  color:
-                      Color(0xFF2D2A35),
-                ),
-              ),
-
-              const SizedBox(height: 2),
-
-              const Text(
-                'Stay focused today',
-                style: TextStyle(
-                  fontSize: 15,
-                  color:
-                      Color(0xFF7A7488),
-                ),
+                  if (tasks.isNotEmpty)
+                    TextButton(
+                      onPressed:
+                          clearAllTasks,
+                      child: const Text(
+                        'Clear All',
+                        style: TextStyle(
+                          color: Color(
+                            0xFF8B6CF6,
+                          ),
+                          fontWeight:
+                              FontWeight
+                                  .w600,
+                        ),
+                      ),
+                    ),
+                ],
               ),
 
               const SizedBox(height: 16),
@@ -212,7 +290,8 @@ class _TodoHomeScreenState
                         focusNode:
                             taskFocusNode,
                         textInputAction:
-                            TextInputAction.done,
+                            TextInputAction
+                                .done,
                         decoration:
                             const InputDecoration(
                           hintText:
@@ -267,7 +346,8 @@ class _TodoHomeScreenState
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight:
-                              FontWeight.w600,
+                              FontWeight
+                                  .w600,
                           color:
                               Colors.white,
                         ),
