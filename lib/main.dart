@@ -175,6 +175,67 @@ class _TodoHomeScreenState
     }
   }
 
+Future<void> editTask(int index) async {
+  final editController =
+      TextEditingController(
+    text: tasks[index]['title'],
+  );
+
+  final updatedTask =
+      await showDialog<String>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text(
+          'Edit task',
+        ),
+        content: TextField(
+          controller: editController,
+          autofocus: true,
+          decoration:
+              const InputDecoration(
+            hintText:
+                'Update task',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child:
+                const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(
+                context,
+                editController.text
+                    .trim(),
+              );
+            },
+            child:
+                const Text('Save'),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (updatedTask != null &&
+      updatedTask.isNotEmpty) {
+    setState(() {
+      tasks[index]['title'] =
+          updatedTask;
+    });
+
+    await saveTasks();
+
+    FocusScope.of(context)
+        .unfocus();
+  }
+}
+
   Future<void> toggleTask(
     int index,
     bool? value,
@@ -490,31 +551,29 @@ class _TodoHomeScreenState
                                   );
                                 },
                               ),
-                              title: Text(
-                                tasks[index]
-                                    ['title'],
-                                softWrap:
-                                    true,
-                                style:
-                                    TextStyle(
-                                  fontSize:
-                                      15,
-                                  height:
-                                      1.2,
-                                  color:
-                                      const Color(
-                                    0xFF2D2A35,
-                                  ),
-                                  decoration:
-                                      tasks[index]
-                                              [
-                                              'isCompleted']
-                                          ? TextDecoration
-                                              .lineThrough
-                                          : TextDecoration
-                                              .none,
-                                ),
-                              ),
+                              title: GestureDetector(
+  onTap: () {
+    editTask(index);
+  },
+  child: Text(
+    tasks[index]['title'],
+    softWrap: true,
+    style: TextStyle(
+      fontSize: 15,
+      height: 1.2,
+      color: const Color(
+        0xFF2D2A35,
+      ),
+      decoration:
+          tasks[index]
+                  ['isCompleted']
+              ? TextDecoration
+                  .lineThrough
+              : TextDecoration
+                  .none,
+    ),
+  ),
+),
                               trailing:
                                   IconButton(
                                 constraints:
