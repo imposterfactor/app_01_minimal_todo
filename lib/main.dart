@@ -14,7 +14,8 @@ class MinimalTodoApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Minimal Todo',
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFF8F7FC),
+        scaffoldBackgroundColor:
+            const Color(0xFFF8F7FC),
       ),
       home: const TodoHomeScreen(),
     );
@@ -34,12 +35,22 @@ class _TodoHomeScreenState
   final TextEditingController taskController =
       TextEditingController();
 
+  final FocusNode taskFocusNode =
+      FocusNode();
+
   List<Map<String, dynamic>> tasks = [];
 
   @override
   void initState() {
     super.initState();
     loadTasks();
+  }
+
+  @override
+  void dispose() {
+    taskController.dispose();
+    taskFocusNode.dispose();
+    super.dispose();
   }
 
   Future<void> saveTasks() async {
@@ -97,6 +108,15 @@ class _TodoHomeScreenState
     taskController.clear();
 
     await saveTasks();
+
+    FocusScope.of(context).unfocus();
+
+    Future.delayed(
+      const Duration(milliseconds: 150),
+      () {
+        taskFocusNode.requestFocus();
+      },
+    );
   }
 
   Future<void> deleteTask(
@@ -189,6 +209,10 @@ class _TodoHomeScreenState
                       child: TextField(
                         controller:
                             taskController,
+                        focusNode:
+                            taskFocusNode,
+                        textInputAction:
+                            TextInputAction.done,
                         decoration:
                             const InputDecoration(
                           hintText:
@@ -257,18 +281,47 @@ class _TodoHomeScreenState
 
               Expanded(
                 child: tasks.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No tasks yet',
-                          style:
-                              TextStyle(
-                            color:
-                                Color(
-                              0xFF8D879B,
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment:
+                              MainAxisAlignment
+                                  .center,
+                          children: const [
+                            Icon(
+                              Icons
+                                  .check_circle_outline_rounded,
+                              size: 48,
+                              color: Color(
+                                0xFFD1C8F8,
+                              ),
                             ),
-                            fontSize:
-                                15,
-                          ),
+                            SizedBox(height: 10),
+                            Text(
+                              'No tasks yet',
+                              style:
+                                  TextStyle(
+                                fontSize:
+                                    16,
+                                color:
+                                    Color(
+                                  0xFF8D879B,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Add something to focus on',
+                              style:
+                                  TextStyle(
+                                fontSize:
+                                    13,
+                                color:
+                                    Color(
+                                  0xFFB0A9BE,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       )
                     : ListView.builder(
@@ -327,7 +380,6 @@ class _TodoHomeScreenState
                                 vertical:
                                     0,
                               ),
-
                               leading:
                                   Checkbox(
                                 activeColor:
@@ -358,7 +410,6 @@ class _TodoHomeScreenState
                                   );
                                 },
                               ),
-
                               title: Text(
                                 tasks[index]
                                     ['title'],
@@ -384,7 +435,6 @@ class _TodoHomeScreenState
                                               .none,
                                 ),
                               ),
-
                               trailing:
                                   IconButton(
                                 constraints:
